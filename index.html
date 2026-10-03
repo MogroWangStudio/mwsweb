@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>首页 - MogroWang Studio Official Website</title>
+  
+  <link rel="icon" href="assets/favicon.png">
+  <style>
+    :root {
+      --ps-accent: #ff6666;
+      --ps-content-w: 680px;
+      --ps-nav-columns: 2;
+      --ps-cover-h: 180px;
+      --ps-topbar-w: 100%;
+      --ps-topbar-deform-w: 360px;
+      --ps-topbar-dur: 800ms;
+      --ps-topbar-ease-custom: 0.23, 1, 0.32, 1;
+      --ps-topbar-fill: color-mix(in srgb, #faf9f7 82%, transparent);
+      --ps-topbar-blur: 14px;
+      --ps-home-w: 75%;
+      --ps-logo-w: 33px;
+      --ps-logo-h: 33px;
+      --ps-logo-r: 0px;
+    }
+  </style>
+  <link rel="stylesheet" href="assets/style.css">
+  <script>document.documentElement.classList.add("ps-js");</script>
+</head>
+  <body data-topbar-shape="药丸" data-topbar-ease="缓出" data-topbar-scroll-at="20" class="blog font-custom ps-anim-spring"style="--ps-font-body: MiSans;--ps-shadow-color: #000000;--ps-shadow-hv-color: #ff6666;--ps-card-dur: 800ms;" data-hv-logo="放大" data-hv-title="无" data-hv-nav="加深" data-shadow="轻" data-shadow-hv="深" data-hv-card="放大" data-hv-ease="弹性" data-loading="进度条" data-toc-style="树形分支" data-toc-hover="滑入">
+  <div class="ps-loader" aria-hidden="true"><span class="ps-loader-spin"></span></div>
+  <header class="blog-topbar">
+    <a class="blog-brand" href="index.html">
+      <img class="blog-logo" src="assets/logo.png" alt="MogroWang Studio Official Website">
+      
+    </a>
+    
+      <nav class="blog-nav" aria-label="站点导航">
+        <a href="%E9%87%8D%E6%9E%84.html">MWS官网现已重构。</a>
+      </nav>
+  </header>
+  <main class="blog-main">
+    <section class="blog-home">
+      <div class="blog-home-body"><br>
+    <br>
+    <p><img src="asset/11.1.png" alt="11.1"><br>
+    <br>
+    <br></p>
+    </div>
+        <div class="blog-stream">
+            <article class="blog-entry">
+              <a class="blog-entry-cover" href="%E9%87%8D%E6%9E%84.html"><img src="asset/mws%20x%20ps.jpg" alt="MWS官网现已重构。" loading="lazy"></a>
+              <time class="blog-entry-date">2026-10-03 21:31:29</time>
+              <h2 class="blog-entry-title"><a href="%E9%87%8D%E6%9E%84.html">MWS官网现已重构。</a></h2>
+              <p class="blog-entry-desc">MWS × Plainstruct</p>
+            </article>
+        </div>
+        <nav class="blog-pagination" aria-label="分页">
+            <span class="blog-page-step is-disabled">← 上一页</span>
+          <span class="blog-page-nums">
+                <span class="blog-page-num is-current" aria-current="page">1</span>
+          </span>
+            <span class="blog-page-step is-disabled">下一页 →</span>
+        </nav>
+    </section>
+      <footer class="blog-footer">
+        <a href="https://github.com/MogroWang/Plainstruct" target="_blank" rel="noopener">由 Plainstruct 创建</a>
+      </footer>
+  </main>
+  <script>
+    (function () {
+      /* 文章页 TOC:滚动时点亮当前章节(最后一个滚过上沿 30% 处的标题) */
+      var toc = document.querySelector(".blog-toc");
+      if (!toc) return;
+      var byId = {};
+      Array.prototype.forEach.call(toc.querySelectorAll("a[href^='#']"), function (a) {
+        try {
+          byId[decodeURIComponent(a.getAttribute("href").slice(1))] = a;
+        } catch (err) {}
+      });
+      var headings = Array.prototype.slice.call(
+        document.querySelectorAll(".blog-post-body h2[id], .blog-post-body h3[id]")
+      ).filter(function (h) { return byId[h.id]; });
+      if (!headings.length) return;
+      /* 目录点按:自行滚动到标题,并为吸顶顶栏留出间距
+         (原生 # 锚点跳转在预览等环境不生效,且标题会被顶栏遮住) */
+      toc.addEventListener("click", function (e) {
+        var a = e.target && e.target.closest ? e.target.closest("a[href^='#']") : null;
+        if (!a) return;
+        var hash = a.getAttribute("href");
+        var id = hash.slice(1);
+        try { id = decodeURIComponent(id); } catch (err) {}
+        var target = document.getElementById(id);
+        if (!target) return;
+        e.preventDefault();
+        var bar = document.querySelector(".blog-topbar");
+        var gap = (bar ? bar.getBoundingClientRect().height : 0) + 24;
+        var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var top = target.getBoundingClientRect().top + (window.pageYOffset || 0) - gap;
+        window.scrollTo({ top: top < 0 ? 0 : top, behavior: reduce ? "auto" : "smooth" });
+        if (window.history && history.replaceState) history.replaceState(null, "", hash);
+      });
+      var ticking = false;
+      function update() {
+        ticking = false;
+        var line = window.innerHeight * 0.3;
+        var activeId = "";
+        for (var i = 0; i < headings.length; i++) {
+          if (headings[i].getBoundingClientRect().top <= line) activeId = headings[i].id;
+          else break;
+        }
+        Array.prototype.forEach.call(toc.querySelectorAll("a.current"), function (a) {
+          a.classList.remove("current");
+        });
+        if (activeId && byId[activeId]) byId[activeId].classList.add("current");
+      }
+      window.addEventListener("scroll", function () {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(update);
+        }
+      }, { passive: true });
+      update();
+    })();
+  </script>
+  <script>
+    (function () {
+      var loader = document.querySelector(".ps-loader");
+      if (!loader) return;
+      var done = function () {
+        loader.classList.add("is-done");
+        window.setTimeout(function () { loader.remove(); }, 420);
+      };
+      if (document.readyState === "complete") done();
+      else window.addEventListener("load", done);
+    })();
+  </script>
+  <script>
+    (function () {
+      var tb = document.querySelector(".blog-topbar");
+      if (!tb) return;
+      var sync = function () {
+        var at = parseInt(document.body.getAttribute("data-topbar-scroll-at") || "24", 10);
+        if (!isFinite(at) || at < 0) at = 24;
+        tb.classList.toggle("is-scrolled", (window.scrollY || document.documentElement.scrollTop || 0) > at);
+      };
+      window.addEventListener("scroll", sync, { passive: true });
+      sync();
+    })();
+  </script>
+</body>
+</html>

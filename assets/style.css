@@ -1,0 +1,1422 @@
+/* 素记 -- 博客浅色:纸面素栏,文章为流,日期为记。层级靠字重与留白,一个强调色点到即止。 */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+:root {
+  --ps-bg: #faf9f7;
+  --ps-surface: #ffffff;
+  --ps-ink: #26231e;
+  --ps-ink-2: #6b665c;
+  --ps-ink-3: #a39d90;
+  --ps-line: #e7e3da;
+  --ps-code-bg: #f1efe9;
+  --ps-on-accent: #ffffff;
+  --ps-topbar-h: 64px;
+  --ps-font-serif: Georgia, "Times New Roman", "Songti SC", "Noto Serif CJK SC", "SimSun", serif;
+  --ps-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-size: 16px;
+  line-height: 1.85;
+  color: var(--ps-ink);
+  background: var(--ps-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 正文字体切换:layout 按 bodyFont 写入 class,custom 时在 body 上注入 --ps-font-body */
+body.font-system {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+
+body.font-serif {
+  font-family: var(--ps-font-serif);
+}
+
+body.font-mono {
+  font-family: var(--ps-font-mono);
+}
+
+body.font-custom {
+  font-family: var(--ps-font-body, system-ui, sans-serif);
+}
+
+/* ---------- 顶栏:半透明材质,内容从其下滚过 ---------- */
+
+.blog-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  max-width: var(--ps-topbar-w, 75%);
+  margin: 0 auto;
+  padding: 0 24px;
+  height: var(--ps-topbar-h);
+  background: var(--ps-bg);
+  background: var(--ps-topbar-fill, color-mix(in srgb, var(--ps-bg) 82%, transparent));
+  -webkit-backdrop-filter: blur(var(--ps-topbar-blur, 14px)) saturate(150%);
+  backdrop-filter: blur(var(--ps-topbar-blur, 14px)) saturate(150%);
+  border: 1px solid transparent;
+  border-bottom-color: var(--ps-line);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .blog-topbar {
+    background: var(--ps-bg);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+.blog-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.blog-brand:active {
+  opacity: 0.75;
+}
+
+/* ---------- 顶栏当前页标题(主题配置开启后显示;首页与站点名重复,不显示) ---------- */
+
+.blog-topbar-page {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-align: right;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 13px;
+  color: var(--ps-ink-2);
+}
+
+/* 标题在场时导航收为内容宽度,标题贴着导航右对齐 */
+.blog-topbar-page ~ .blog-nav {
+  flex: 0 1 auto;
+}
+
+.blog-logo {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.blog-brand-text {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.blog-site-name {
+  font-size: 15.5px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.blog-site-desc {
+  overflow: hidden;
+  font-size: 12.5px;
+  color: var(--ps-ink-3);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.blog-nav {
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+  gap: 4px;
+  min-width: 0;
+  overflow-x: auto;
+  font-size: 13px;
+  scrollbar-width: none;
+}
+
+.blog-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.blog-nav a {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: var(--ps-ink-2);
+  text-decoration: none;
+  transition: color 140ms ease;
+}
+
+body:not([data-hv-nav="无"]) .blog-nav a:hover {
+  color: var(--ps-ink);
+}
+
+.blog-nav a.current {
+  color: var(--ps-accent);
+}
+
+/* ---------- 布局 ---------- */
+
+.blog-main {
+  max-width: calc(var(--ps-content-w) + 236px);
+  margin: 0 auto;
+  padding: 0 24px 56px;
+}
+
+/* ---------- 首页:卡片式文章流 ---------- */
+
+.blog-home {
+  width: 100%;
+  max-width: var(--ps-home-w, 75%);
+  margin-right: auto;
+  margin-left: auto;
+  padding-top: 40px;
+}
+
+.blog-home-body {
+  margin-bottom: 28px;
+}
+
+.blog-home-body > :first-child {
+  margin-top: 0;
+}
+
+.blog-home-body > :last-child {
+  margin-bottom: 0;
+}
+
+.blog-stream {
+  display: grid;
+  grid-template-columns: repeat(var(--ps-nav-columns, 1), 1fr);
+  gap: 14px;
+  margin-top: 34px;
+  align-items: start;
+}
+
+.blog-entry {
+  position: relative;
+  padding: 18px 22px 20px;
+  border: 1px solid var(--ps-line);
+  border-radius: 12px;
+  background: var(--ps-surface);
+  transition: border-color 160ms ease;
+}
+
+.blog-entry:hover {
+  border-color: color-mix(in srgb, var(--ps-accent) 42%, var(--ps-line));
+}
+
+.blog-entry-date {
+  display: block;
+  margin: 0 0 3px;
+  font-size: 12.5px;
+  color: var(--ps-ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.blog-entry-title {
+  margin: 0;
+  font-size: 17.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+
+.blog-entry-title a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 140ms ease;
+}
+
+/* stretched link:标题链接铺满整卡,整卡可点 */
+.blog-entry-title a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.blog-entry:hover .blog-entry-title a {
+  color: var(--ps-accent);
+}
+
+.blog-entry-title a:active {
+  opacity: 0.7;
+}
+
+.blog-entry-desc {
+  margin: 6px 0 0;
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--ps-ink-2);
+}
+
+/* ---------- 分页 ---------- */
+
+.blog-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 30px;
+  font-size: 13px;
+}
+
+.blog-page-nums {
+  display: flex;
+  gap: 4px;
+}
+
+.blog-page-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 6px;
+  border-radius: 8px;
+  color: var(--ps-ink-2);
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+a.blog-page-num:hover {
+  background: var(--ps-code-bg);
+  color: var(--ps-ink);
+}
+
+.blog-page-num.is-current {
+  background: var(--ps-accent);
+  color: var(--ps-on-accent);
+  font-weight: 600;
+}
+
+.blog-page-step {
+  flex-shrink: 0;
+  color: var(--ps-ink-2);
+  text-decoration: none;
+  transition: color 140ms ease;
+}
+
+a.blog-page-step:hover {
+  color: var(--ps-accent);
+}
+
+a.blog-page-step:active {
+  opacity: 0.7;
+}
+
+.blog-page-step.is-disabled {
+  opacity: 0.4;
+}
+
+/* ---------- 文章页 ---------- */
+
+.blog-post {
+  padding-top: 44px;
+}
+
+.blog-post-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+.blog-post-date {
+  display: block;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--ps-ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.blog-post-desc {
+  margin: 8px 0 0;
+  font-size: 14.5px;
+  color: var(--ps-ink-2);
+}
+
+.blog-post-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 188px;
+  gap: 44px;
+  margin-top: 30px;
+}
+
+@media (max-width: 960px) {
+  .blog-post-cols {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .blog-toc {
+    display: none;
+  }
+}
+
+/* ---------- TOC:正文右侧,随滚动点亮 ---------- */
+
+.blog-toc {
+  position: sticky;
+  top: calc(var(--ps-topbar-h) + 30px);
+  align-self: start;
+  max-height: calc(100vh - var(--ps-topbar-h) - 60px);
+  overflow-y: auto;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.blog-toc-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--ps-ink-3);
+}
+
+.blog-toc-list {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  border-left: 1px solid var(--ps-line);
+}
+
+.blog-toc-item a {
+  display: block;
+  margin-left: -1px;
+  padding: 5px 8px 5px 14px;
+  border-left: 2px solid transparent;
+  color: var(--ps-ink-3);
+  text-decoration: none;
+  transition: color 140ms ease, border-color 140ms ease;
+}
+
+.blog-toc-item.is-l3 a {
+  padding-left: 26px;
+}
+
+.blog-toc-item a:hover {
+  color: var(--ps-ink);
+}
+
+.blog-toc-item a.current {
+  border-left-color: var(--ps-accent);
+  color: var(--ps-accent);
+}
+
+/* ---------- 正文元素 ---------- */
+
+.blog-post-body h2,
+.blog-post-body h3,
+.blog-post-body h4,
+.blog-post-body h5,
+.blog-post-body h6,
+.blog-home-body h1,
+.blog-home-body h2,
+.blog-home-body h3 {
+  margin: 1.7em 0 0.6em;
+  font-weight: 650;
+  line-height: 1.4;
+  letter-spacing: -0.015em;
+}
+
+.blog-post-body h2,
+.blog-home-body h2 {
+  font-size: 21px;
+}
+
+.blog-post-body h3,
+.blog-home-body h3 {
+  font-size: 17.5px;
+}
+
+.blog-post-body h4,
+.blog-post-body h5,
+.blog-post-body h6,
+.blog-home-body h4 {
+  font-size: 15.5px;
+}
+
+.blog-post-body p,
+.blog-post-body ul,
+.blog-post-body ol,
+.blog-post-body blockquote,
+.blog-post-body pre,
+.blog-post-body table,
+.blog-home-body p,
+.blog-home-body ul,
+.blog-home-body ol,
+.blog-home-body blockquote,
+.blog-home-body pre,
+.blog-home-body table {
+  margin: 0 0 1.1em;
+}
+
+.blog-post-body a,
+.blog-home-body a {
+  color: var(--ps-accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--ps-accent) 38%, transparent);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 140ms ease;
+}
+
+.blog-post-body a:hover,
+.blog-home-body a:hover {
+  text-decoration-color: var(--ps-accent);
+}
+
+.blog-post-body img,
+.blog-home-body img {
+  max-width: 100%;
+  border-radius: 6px;
+}
+
+.blog-post-body hr,
+.blog-home-body hr {
+  margin: 2em 0;
+  border: none;
+  border-top: 1px solid var(--ps-line);
+}
+
+.blog-post-body blockquote,
+.blog-home-body blockquote {
+  padding: 2px 0 2px 18px;
+  border-left: 3px solid var(--ps-line);
+  color: var(--ps-ink-2);
+}
+
+.blog-post-body blockquote > :last-child,
+.blog-home-body blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+.blog-post-body code,
+.blog-home-body code {
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: var(--ps-code-bg);
+  color: var(--ps-ink);
+  font-family: var(--ps-font-mono);
+  font-size: 0.86em;
+}
+
+.blog-post-body pre,
+.blog-home-body pre {
+  padding: 16px 18px;
+  border-radius: 10px;
+  background: var(--ps-code-bg);
+  overflow-x: auto;
+  line-height: 1.7;
+}
+
+.blog-post-body pre code,
+.blog-home-body pre code {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  font-size: 13px;
+}
+
+.blog-post-body table,
+.blog-home-body table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.blog-post-body th,
+.blog-post-body td,
+.blog-home-body th,
+.blog-home-body td {
+  padding: 8px 12px;
+  border: 1px solid var(--ps-line);
+  text-align: left;
+}
+
+.blog-post-body th,
+.blog-home-body th {
+  background: var(--ps-code-bg);
+  font-weight: 600;
+}
+
+.blog-post-body input.task-item,
+.blog-home-body input.task-item {
+  margin-right: 6px;
+  accent-color: var(--ps-accent);
+}
+
+.blog-post-body li.task-list-item,
+.blog-home-body li.task-list-item {
+  list-style: none;
+}
+
+/* ---------- 代码高亮(GitHub 配色) ---------- */
+
+.hljs-comment,
+.hljs-quote {
+  color: #6e7781;
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal {
+  color: #cf222e;
+}
+
+.hljs-string,
+.hljs-attr,
+.hljs-addition {
+  color: #0a3069;
+}
+
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet {
+  color: #0550ae;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-name {
+  color: #953800;
+}
+
+.hljs-built_in,
+.hljs-type {
+  color: #8250df;
+}
+
+.hljs-meta,
+.hljs-deletion {
+  color: #82071e;
+}
+
+/* ---------- 翻页 ---------- */
+
+.blog-pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 60px;
+  padding-top: 20px;
+  border-top: 1px solid var(--ps-line);
+}
+
+.blog-pager-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 48%;
+  font-size: 13.5px;
+  color: var(--ps-ink-2);
+  text-decoration: none;
+  transition: color 140ms ease;
+}
+
+.blog-pager-item:hover {
+  color: var(--ps-accent);
+}
+
+.blog-pager-item:active {
+  opacity: 0.7;
+}
+
+.blog-pager-item.is-next {
+  margin-left: auto;
+  text-align: right;
+}
+
+.blog-pager-item span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- 底部 ---------- */
+
+.blog-footer {
+  margin-top: 72px;
+  font-size: 12.5px;
+  color: var(--ps-ink-3);
+  text-align: center;
+}
+
+.blog-footer a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.blog-footer a:hover {
+  color: var(--ps-ink-2);
+}
+
+/* ---------- 页面过渡动画 ---------- */
+
+.ps-anim-fade .blog-main {
+  animation: ps-page-fade 380ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.ps-anim-rise .blog-main {
+  animation: ps-page-rise 480ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.ps-anim-zoom .blog-main {
+  animation: ps-page-zoom 460ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.ps-anim-slide .blog-main {
+  animation: ps-page-slide 460ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.ps-anim-spring .blog-main {
+  animation: ps-page-spring 620ms cubic-bezier(0.34, 1.42, 0.5, 1) both;
+}
+
+.ps-anim-blur .blog-main {
+  animation: ps-page-blur 480ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.ps-anim-flip .blog-main {
+  animation: ps-page-flip 560ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  transform-origin: 50% 0;
+}
+
+.ps-anim-wipe .blog-main {
+  animation: ps-page-wipe 520ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+@keyframes ps-page-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ps-page-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ps-page-zoom {
+  from {
+    opacity: 0;
+    transform: scale(0.975);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ps-page-slide {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ps-page-spring {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ps-page-blur {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    filter: none;
+  }
+}
+
+@keyframes ps-page-flip {
+  from {
+    opacity: 0;
+    transform: perspective(1200px) rotateX(-7deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ps-page-wipe {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ps-anim-fade .blog-main,
+  .ps-anim-rise .blog-main,
+  .ps-anim-zoom .blog-main,
+  .ps-anim-slide .blog-main,
+  .ps-anim-spring .blog-main,
+  .ps-anim-blur .blog-main,
+  .ps-anim-flip .blog-main,
+  .ps-anim-wipe .blog-main {
+    animation: none;
+  }
+}
+
+/* ---------- 响应式 ---------- */
+
+@media (max-width: 640px) {
+  .blog-topbar {
+    gap: 14px;
+    padding: 0 16px;
+  }
+
+  .blog-site-desc {
+    display: none;
+  }
+
+  .blog-topbar-page {
+    display: none;
+  }
+
+  .blog-main {
+    padding: 0 16px 48px;
+  }
+
+  .blog-home {
+    padding-top: 28px;
+  }
+
+  .blog-post {
+    padding-top: 32px;
+  }
+
+  .blog-post-title {
+    font-size: 23px;
+  }
+}
+
+/* 文章流封面图:出血至卡片边缘,上圆角与卡片一致 */
+.blog-entry-cover {
+  display: block;
+  margin: -18px -22px 16px;
+  border-radius: 11px 11px 0 0;
+  overflow: hidden;
+}
+.blog-entry-cover img {
+  display: block;
+  width: 100%;
+  height: var(--ps-cover-h, 220px);
+  object-fit: cover;
+}
+
+/* 未设置封面的文章:文档图标占位(正文色低透明度,深浅主题自适应) */
+.blog-entry-cover-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--ps-cover-h, 220px);
+  background: color-mix(in srgb, currentColor 5%, transparent);
+}
+.blog-entry-cover-empty .blog-entry-cover-icon {
+  opacity: 0.26;
+}
+/* ---------- 正文 HTML 对齐:align 属性与 center 标签(编辑器对齐按钮生成同款代码) ---------- */
+
+.blog-post-body [align="left"],
+.blog-home-body [align="left"] {
+  text-align: left;
+}
+
+.blog-post-body [align="center"],
+.blog-home-body [align="center"],
+.blog-post-body center,
+.blog-home-body center {
+  text-align: center;
+}
+
+.blog-post-body [align="right"],
+.blog-home-body [align="right"] {
+  text-align: right;
+}
+
+/* 图片为容器唯一子元素时按块级对齐;行内图片由 text-align 生效 */
+.blog-post-body [align="center"] > img:only-child,
+.blog-home-body [align="center"] > img:only-child,
+.blog-post-body center > img:only-child,
+.blog-home-body center > img:only-child {
+  display: block;
+  margin-inline: auto;
+}
+
+.blog-post-body [align="right"] > img:only-child,
+.blog-home-body [align="right"] > img:only-child {
+  display: block;
+  margin-left: auto;
+}
+
+/* ---------- 品牌与导航的悬停反馈(主题配置 data-* 驱动) ---------- */
+
+.blog-logo {
+  transition:
+    opacity 160ms ease,
+    transform 260ms cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 160ms ease;
+}
+
+.blog-site-name {
+  transition:
+    opacity 160ms ease,
+    color 160ms ease,
+    text-decoration-color 160ms ease;
+}
+
+.blog-nav a {
+  transition:
+    color 140ms ease,
+    opacity 140ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease;
+}
+
+/* 自带 hover 下边框的主题(杂志):其余反馈时让位,避免双重反馈 */
+body[data-hv-nav="淡化"] .blog-nav a:hover,
+body[data-hv-nav="强调色"] .blog-nav a:hover,
+body[data-hv-nav="下划线"] .blog-nav a:hover,
+body[data-hv-nav="底色"] .blog-nav a:hover {
+  border-bottom-color: transparent;
+}
+
+body[data-hv-logo="淡化"] .blog-brand:hover .blog-logo {
+  opacity: 0.6;
+}
+
+body[data-hv-logo="放大"] .blog-brand:hover .blog-logo {
+  transform: scale(1.08);
+}
+
+body[data-hv-logo="强调色"] .blog-brand:hover .blog-logo {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ps-accent) 32%, transparent);
+}
+
+body[data-hv-title="淡化"] .blog-brand:hover .blog-site-name {
+  opacity: 0.6;
+}
+
+body[data-hv-title="强调色"] .blog-brand:hover .blog-site-name {
+  color: var(--ps-accent);
+}
+
+body[data-hv-title="下划线"] .blog-site-name {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
+
+body[data-hv-title="下划线"] .blog-brand:hover .blog-site-name {
+  text-decoration-color: var(--ps-accent);
+}
+
+body[data-hv-nav="淡化"] .blog-nav a:hover {
+  opacity: 0.62;
+}
+
+body[data-hv-nav="强调色"] .blog-nav a:hover {
+  color: var(--ps-accent);
+}
+
+body[data-hv-nav="下划线"] .blog-nav a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--ps-accent);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
+
+body[data-hv-nav="底色"] .blog-nav a:hover {
+  background: color-mix(in srgb, var(--ps-ink) 7%, transparent);
+}
+
+/* ---------- 文章卡片阴影(一般形态与悬停,主题配置 data-shadow 驱动)与卡片悬停反馈(data-hv-card) ---------- */
+
+.blog-entry {
+  transition:
+    border-color 160ms ease,
+    box-shadow var(--ps-card-dur, 240ms) var(--ps-card-ease, cubic-bezier(0.23, 1, 0.32, 1)),
+    transform var(--ps-card-dur, 240ms) var(--ps-card-ease, cubic-bezier(0.23, 1, 0.32, 1)),
+    opacity var(--ps-card-dur, 240ms) var(--ps-card-ease, cubic-bezier(0.23, 1, 0.32, 1));
+}
+
+/* 卡片悬停曲线:预设经 data-hv-ease 映射,自定义曲线与时长由模板注入 CSS 变量 */
+body[data-hv-ease="缓出"] .blog-entry {
+  --ps-card-ease: ease-out;
+}
+
+body[data-hv-ease="缓入"] .blog-entry {
+  --ps-card-ease: ease-in;
+}
+
+body[data-hv-ease="线性"] .blog-entry {
+  --ps-card-ease: linear;
+}
+
+body[data-hv-ease="弹性"] .blog-entry {
+  --ps-card-ease: cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+/* 卡片悬停反馈:无(默认,仅描边与阴影变化)/上浮/下沉/放大/缩小/淡化/倾斜;减弱动态效果时不位移 */
+body[data-hv-card="上浮"] .blog-entry:hover {
+  transform: translateY(-3px);
+}
+
+body[data-hv-card="下沉"] .blog-entry:hover {
+  transform: translateY(2px);
+}
+
+body[data-hv-card="放大"] .blog-entry:hover {
+  transform: scale(1.015);
+}
+
+body[data-hv-card="缩小"] .blog-entry:hover {
+  transform: scale(0.985);
+}
+
+body[data-hv-card="淡化"] .blog-entry:hover {
+  opacity: 0.75;
+}
+
+body[data-hv-card="倾斜"] .blog-entry:hover {
+  transform: rotate(-1deg) scale(1.01);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blog-entry:hover {
+    transform: none;
+  }
+}
+
+/* 卡片阴影颜色由主题配置注入(--ps-shadow-color / --ps-shadow-hv-color,缺省黑:
+   与 3.4.0 外观一致);预设档位与自定义档位共用同一颜色,只换不透明度 */
+body[data-shadow="轻"] .blog-entry {
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--ps-shadow-color, #000) 5%, transparent),
+    0 2px 8px color-mix(in srgb, var(--ps-shadow-color, #000) 5%, transparent);
+}
+
+body[data-shadow-hv="轻"] .blog-entry:hover {
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--ps-shadow-hv-color, #000) 5%, transparent),
+    0 2px 8px color-mix(in srgb, var(--ps-shadow-hv-color, #000) 5%, transparent);
+}
+
+body[data-shadow="中"] .blog-entry {
+  box-shadow:
+    0 2px 6px color-mix(in srgb, var(--ps-shadow-color, #000) 7%, transparent),
+    0 8px 22px color-mix(in srgb, var(--ps-shadow-color, #000) 9%, transparent);
+}
+
+body[data-shadow-hv="中"] .blog-entry:hover {
+  box-shadow:
+    0 2px 6px color-mix(in srgb, var(--ps-shadow-hv-color, #000) 7%, transparent),
+    0 8px 22px color-mix(in srgb, var(--ps-shadow-hv-color, #000) 9%, transparent);
+}
+
+body[data-shadow="深"] .blog-entry {
+  box-shadow:
+    0 4px 12px color-mix(in srgb, var(--ps-shadow-color, #000) 13%, transparent),
+    0 14px 36px color-mix(in srgb, var(--ps-shadow-color, #000) 15%, transparent);
+}
+
+body[data-shadow-hv="深"] .blog-entry:hover {
+  box-shadow:
+    0 4px 12px color-mix(in srgb, var(--ps-shadow-hv-color, #000) 13%, transparent),
+    0 14px 36px color-mix(in srgb, var(--ps-shadow-hv-color, #000) 15%, transparent);
+}
+
+/* 自定义阴影:数值由模板按配置注入 CSS 变量,缺省回退中等强度 */
+body[data-shadow="自定义"] .blog-entry {
+  box-shadow: var(--ps-shadow-custom, 0 2px 8px rgb(0 0 0 / 9%));
+}
+
+body[data-shadow-hv="自定义"] .blog-entry:hover {
+  box-shadow: var(--ps-shadow-hv-custom, 0 2px 8px rgb(0 0 0 / 9%));
+}
+
+/* ---------- 页面加载动画(跳转时出现,页面就绪淡出;ps-js 由模板脚本置位,禁脚本环境不显示) ---------- */
+
+.ps-loader {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  align-items: center;
+  justify-content: center;
+  background: var(--ps-bg);
+  transition: opacity 360ms ease;
+}
+
+.ps-js .ps-loader {
+  display: flex;
+}
+
+.ps-loader.is-done {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ps-loader-spin {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2.5px solid var(--ps-line);
+  border-top-color: var(--ps-accent);
+}
+
+body[data-loading="转圈"] .ps-loader-spin {
+  animation: ps-loader-spin 900ms cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@keyframes ps-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+body[data-loading="点点"] .ps-loader-spin {
+  position: relative;
+  width: 9px;
+  height: 9px;
+  border: none;
+  border-radius: 50%;
+  background: var(--ps-accent);
+  color: var(--ps-accent);
+  animation: ps-loader-dot 1100ms ease-in-out infinite;
+}
+
+body[data-loading="点点"] .ps-loader-spin::before,
+body[data-loading="点点"] .ps-loader-spin::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+body[data-loading="点点"] .ps-loader-spin::before {
+  left: -15px;
+  animation: ps-loader-dot 1100ms ease-in-out infinite;
+  animation-delay: -180ms;
+}
+
+body[data-loading="点点"] .ps-loader-spin::after {
+  left: 15px;
+  animation: ps-loader-dot 1100ms ease-in-out infinite;
+  animation-delay: 180ms;
+}
+
+@keyframes ps-loader-dot {
+  0%,
+  70%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+body[data-loading="进度条"] .ps-loader {
+  background: transparent;
+  align-items: stretch;
+  pointer-events: none;
+}
+
+body[data-loading="进度条"] .ps-loader-spin {
+  width: 100%;
+  height: 3px;
+  border: none;
+  border-radius: 0;
+  background: linear-gradient(90deg, transparent, var(--ps-accent));
+  transform-origin: left;
+  animation: ps-loader-bar 1100ms cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@keyframes ps-loader-bar {
+  0% {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  49% {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+  51% {
+    transform: scaleX(1);
+    transform-origin: right;
+  }
+  100% {
+    transform: scaleX(0);
+    transform-origin: right;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ps-loader-spin {
+    animation: none;
+  }
+}
+
+/* ---------- 品牌配置:logo 尺寸按百分比缩放(基准为各主题原尺寸),圆角可调 ---------- */
+
+.blog-logo {
+  width: var(--ps-logo-w, 26px);
+  height: var(--ps-logo-h, 26px);
+  border-radius: var(--ps-logo-r, 6px);
+}
+
+/* ---------- 顶栏滚动形态(顶栏滚动形态:固定不动 / 药丸 / 圆角矩形) ---------- */
+.blog-topbar {
+  --tb-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  transition:
+    max-width var(--ps-topbar-dur, 220ms) var(--tb-ease), /* deslop-ignore 26: 顶栏变形过渡的就是宽度本身 */
+    top var(--ps-topbar-dur, 220ms) var(--tb-ease),
+    height var(--ps-topbar-dur, 220ms) var(--tb-ease),
+    border-radius var(--ps-topbar-dur, 220ms) var(--tb-ease),
+    border-color var(--ps-topbar-dur, 220ms) var(--tb-ease),
+    box-shadow var(--ps-topbar-dur, 220ms) var(--tb-ease),
+    background-color var(--ps-topbar-dur, 220ms) var(--tb-ease);
+}
+/* 变形曲线预设(自定义读 layout 注入的 cubic-bezier 参数) */
+body[data-topbar-ease="标准"] .blog-topbar { --tb-ease: cubic-bezier(0.23, 1, 0.32, 1); }
+body[data-topbar-ease="缓出"] .blog-topbar { --tb-ease: cubic-bezier(0.16, 1, 0.3, 1); }
+body[data-topbar-ease="缓入"] .blog-topbar { --tb-ease: cubic-bezier(0.55, 0.06, 0.68, 0.19); }
+body[data-topbar-ease="线性"] .blog-topbar { --tb-ease: linear; }
+body[data-topbar-ease="弹性"] .blog-topbar { --tb-ease: cubic-bezier(0.34, 1.56, 0.64, 1); }
+body[data-topbar-ease="自定义"] .blog-topbar { --tb-ease: cubic-bezier(var(--ps-topbar-ease-custom, 0.23, 1, 0.32, 1)); }
+/* 药丸:滚动后收成居中浮动胶囊 */
+body[data-topbar-shape="药丸"] .blog-topbar.is-scrolled {
+  top: 12px;
+  height: 54px;
+  border: 1px solid var(--ps-line);
+  border-radius: 999px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+/* 圆角矩形:滚动后浮起为圆角条 */
+body[data-topbar-shape="圆角矩形"] .blog-topbar.is-scrolled {
+  top: 12px;
+  height: 58px;
+  border: 1px solid var(--ps-line);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .blog-topbar {
+    transition: none;
+  }
+}
+/* ---------- 顶栏变形后宽度(药丸 / 圆角矩形浮起时收窄到指定宽度) ---------- */
+
+body[data-topbar-shape="药丸"] .blog-topbar.is-scrolled,
+body[data-topbar-shape="圆角矩形"] .blog-topbar.is-scrolled {
+  max-width: var(--ps-topbar-deform-w, 916px);
+}
+
+/* ---------- 文章目录:锚点落点、树风格与悬停动画 ---------- */
+
+/* 点按目录后标题停在吸顶顶栏之下,不再被遮住 */
+.blog-post-body h1[id],
+.blog-post-body h2[id],
+.blog-post-body h3[id],
+.blog-post-body h4[id],
+.blog-post-body h5[id],
+.blog-post-body h6[id] {
+  scroll-margin-top: calc(var(--ps-topbar-h) + 28px);
+}
+
+/* 树形分支:通栏竖线换成按层级收进的 ├─ 折线 */
+body[data-toc-style="树形分支"] .blog-toc-list {
+  border-left: none;
+}
+
+body[data-toc-style="树形分支"] .blog-toc-item {
+  --toc-branch-x: 4px;
+  position: relative;
+}
+
+body[data-toc-style="树形分支"] .blog-toc-item.is-l3 {
+  --toc-branch-x: 18px;
+}
+
+body[data-toc-style="树形分支"] .blog-toc-item.is-l4 {
+  --toc-branch-x: 32px;
+}
+
+body[data-toc-style="树形分支"] .blog-toc-item.is-l5 {
+  --toc-branch-x: 46px;
+}
+
+body[data-toc-style="树形分支"] .blog-toc-item a {
+  margin-left: 0;
+  padding-left: calc(var(--toc-branch-x) + 14px);
+  border-left-color: transparent;
+}
+
+body[data-toc-style="树形分支"] .blog-toc-item::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--toc-branch-x);
+  width: 1px;
+  background: var(--ps-line);
+  content: "";
+  pointer-events: none;
+}
+
+/* 末项竖线止于中线,与横线合成 └─ */
+body[data-toc-style="树形分支"] .blog-toc-item:last-child::before {
+  bottom: 50%;
+}
+
+body[data-toc-style="树形分支"] .blog-toc-item::after {
+  position: absolute;
+  top: 50%;
+  left: var(--toc-branch-x);
+  width: 8px;
+  height: 1px;
+  background: var(--ps-line);
+  content: "";
+  pointer-events: none;
+}
+
+/* 极简:去掉所有导线,只留层级缩进与强调色 */
+body[data-toc-style="极简"] .blog-toc-list {
+  border-left: none;
+}
+
+body[data-toc-style="极简"] .blog-toc-item a {
+  margin-left: 0;
+  padding-left: 0;
+  border-left: none;
+}
+
+body[data-toc-style="极简"] .blog-toc-item.is-l3 a {
+  padding-left: 16px;
+}
+
+body[data-toc-style="极简"] .blog-toc-item.is-l4 a {
+  padding-left: 32px;
+}
+
+body[data-toc-style="极简"] .blog-toc-item a.current {
+  border-left: none;
+  color: var(--ps-accent);
+  font-weight: 600;
+}
+
+/* 悬停动画预设(无 = 各主题原生反馈,不改动) */
+body[data-toc-hover="滑入"] .blog-toc-item a {
+  position: relative;
+  transition: color 180ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+body[data-toc-hover="滑入"] .blog-toc-item a::after {
+  position: absolute;
+  top: 20%;
+  bottom: 20%;
+  left: 0;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--ps-accent);
+  content: "";
+  transform: scaleY(0);
+  transform-origin: 50% 50%;
+  transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1);
+  pointer-events: none;
+}
+
+body[data-toc-hover="滑入"] .blog-toc-item a:hover::after,
+body[data-toc-hover="滑入"] .blog-toc-item a:focus-visible::after {
+  transform: scaleY(1);
+}
+
+body[data-toc-hover="微移"] .blog-toc-item a {
+  transition:
+    color 180ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 180ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+body[data-toc-hover="微移"] .blog-toc-item a:hover,
+body[data-toc-hover="微移"] .blog-toc-item a:focus-visible {
+  transform: translateX(3px);
+}
+
+body[data-toc-hover="底色"] .blog-toc-item a {
+  border-radius: 5px;
+  transition:
+    color 180ms cubic-bezier(0.23, 1, 0.32, 1),
+    background-color 180ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+body[data-toc-hover="底色"] .blog-toc-item a:hover,
+body[data-toc-hover="底色"] .blog-toc-item a:focus-visible {
+  background: color-mix(in srgb, var(--ps-accent) 12%, transparent);
+  color: var(--ps-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-toc-hover="滑入"] .blog-toc-item a,
+  body[data-toc-hover="滑入"] .blog-toc-item a::after,
+  body[data-toc-hover="微移"] .blog-toc-item a,
+  body[data-toc-hover="底色"] .blog-toc-item a {
+    transition: none;
+  }
+
+  body[data-toc-hover="微移"] .blog-toc-item a:hover {
+    transform: none;
+  }
+}
