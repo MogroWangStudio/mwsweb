@@ -95,19 +95,15 @@ body.font-custom {
 /* ---------- 顶栏当前页标题(主题配置开启后显示;首页与站点名重复,不显示) ---------- */
 
 .blog-topbar-page {
-  flex: 1;
+  /* 紧跟品牌区(logo/站点名)左侧显示,不再占满剩余空间靠右;
+     右侧导航恢复 flex: 1,照常推到顶栏右缘 */
+  flex: 0 1 auto;
   min-width: 0;
   overflow: hidden;
-  text-align: right;
   white-space: nowrap;
   text-overflow: ellipsis;
   font-size: 13px;
   color: var(--ps-ink-2);
-}
-
-/* 标题在场时导航收为内容宽度,标题贴着导航右对齐 */
-.blog-topbar-page ~ .blog-nav {
-  flex: 0 1 auto;
 }
 
 .blog-logo {
@@ -1419,4 +1415,34 @@ body[data-toc-hover="底色"] .blog-toc-item a:focus-visible {
   body[data-toc-hover="微移"] .blog-toc-item a:hover {
     transform: none;
   }
+}
+
+
+/* ---------- 文章 meta 行:日期 + 作者署名 + AIGC 声明(同一行,配置可分别关闭) ---------- */
+.blog-post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  margin: 10px 0 0;
+}
+.blog-post-meta:empty {
+  display: none;
+}
+.blog-post-meta .blog-post-date {
+  margin: 0;
+}
+.ps-doc-author {
+  font-size: 13px;
+  color: var(--ps-ink-2);
+}
+.ps-aigc {
+  padding: 1px 10px;
+  border: 1px solid var(--ps-line);
+  border-radius: 999px;
+  font-size: 11.5px;
+  color: var(--ps-ink-3);
+}
+.ps-aigc[data-aigc="present"] {
+  color: var(--ps-ink-2);
 }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>首页 - MogroWang Studio Official Website</title>
+  <title>文章列表 - MogroWang Studio Official Website</title>
   
   <link rel="icon" href="assets/favicon.png">
   <style>
@@ -34,41 +34,27 @@
       <img class="blog-logo" src="assets/logo.png" alt="MogroWang Studio Official Website">
       
     </a>
-    
+    <span class="blog-topbar-page">文章列表</span>
       <nav class="blog-nav" aria-label="站点导航">
-        <a href="%E6%96%87%E7%AB%A0%E5%88%97%E8%A1%A8.html">文章列表</a>
+        <a href="%E6%96%87%E7%AB%A0%E5%88%97%E8%A1%A8.html" class="current">文章列表</a>
       </nav>
   </header>
   <main class="blog-main">
-    <section class="blog-home">
-      <div class="blog-home-body"><br>
-    <br>
-    <p><img src="asset/11.1.png" alt="11.1"><br>
-    <br>
-    <br></p>
+    <article class="blog-post">
+      <header class="blog-post-head">
+        <h1 class="blog-post-title">文章列表</h1>
+        <div class="blog-post-meta"><time class="blog-post-date">2026-10-04 00:00:00</time></div>
+        
+      </header>
+      <div class="blog-post-cols">
+        <div class="blog-post-body"><p>正文。</p>
     </div>
-        <div class="blog-stream">
-            <article class="blog-entry">
-              <a class="blog-entry-cover blog-entry-cover-empty" href="%E6%96%87%E7%AB%A0%E5%88%97%E8%A1%A8.html" aria-hidden="true"><svg class="blog-entry-cover-icon" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h6"/></svg></a>
-              <time class="blog-entry-date">2026-10-04 00:00:00</time>
-              <h2 class="blog-entry-title"><a href="%E6%96%87%E7%AB%A0%E5%88%97%E8%A1%A8.html">文章列表</a></h2>
-              
-            </article>
-            <article class="blog-entry">
-              <a class="blog-entry-cover" href="%E9%87%8D%E6%9E%84.html"><img src="asset/mws%20x%20ps.jpg" alt="MWS官网现已重构。" loading="lazy"></a>
-              <time class="blog-entry-date">2026-10-03 21:31:29</time>
-              <h2 class="blog-entry-title"><a href="%E9%87%8D%E6%9E%84.html">MWS官网现已重构。</a></h2>
-              <p class="blog-entry-desc">MWS × Plainstruct</p>
-            </article>
-        </div>
-        <nav class="blog-pagination" aria-label="分页">
-            <span class="blog-page-step is-disabled">← 上一页</span>
-          <span class="blog-page-nums">
-                <span class="blog-page-num is-current" aria-current="page">1</span>
-          </span>
-            <span class="blog-page-step is-disabled">下一页 →</span>
-        </nav>
-    </section>
+      </div>
+      <nav class="blog-pager">
+        <a class="blog-pager-item" href="%E9%87%8D%E6%9E%84.html"><span class="blog-pager-tag">←</span><span>MWS官网现已重构。</span></a>
+        
+      </nav>
+    </article>
       <footer class="blog-footer">
         <a href="https://github.com/MogroWang/Plainstruct" target="_blank" rel="noopener">由 Plainstruct 创建</a>
       </footer>
