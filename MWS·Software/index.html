@@ -29,6 +29,18 @@ body[data-cover-fixed="true"][data-cover-ratio="1:1"] .blog-entry-cover-empty {
   aspect-ratio: 1 / 1;
 }
 
+/* 卡片流字号:卡片文本(标题/日期/描述,主题内均为 em)随此基准等比缩放,
+   桌面/移动端(≤640px,layout 覆盖块重设变量)分别生效 */
+.blog-entry {
+  font-size: var(--ps-card-fs, 16px);
+}
+
+/* 主页卡片流宽度:首页系列(含分页页)解除统一容器的限宽,
+   卡片流宽度百分比真正相对窗口内容宽 —— 100% 即窗口全宽(仍保留页面呼吸边距) */
+body.ps-home .blog-main {
+  max-width: none;
+}
+
 /* 主页分类卡片流:组标题可点击进入分类落地页,组内复用文章卡片流 */
 .blog-group {
   margin-top: 40px;
@@ -49,6 +61,20 @@ body[data-cover-fixed="true"][data-cover-ratio="1:1"] .blog-entry-cover-empty {
   margin-top: 18px;
 }
 
+/* 组尾「查看更多」:分组开启每组上限且截断生效时出现(跳转分类落地页) */
+.blog-group-more {
+  margin-top: 18px;
+}
+.blog-group-more-link {
+  display: inline-block;
+  color: var(--ps-accent);
+  font-size: 13.5px;
+  text-decoration: none;
+}
+.blog-group-more-link:hover {
+  text-decoration: underline;
+}
+
 /* 博客文件夹落地页(卡片流视图):标题与文章流 */
 .blog-folder-head {
   margin: 40px 0 0;
@@ -60,6 +86,259 @@ body[data-cover-fixed="true"][data-cover-ratio="1:1"] .blog-entry-cover-empty {
 }
 .blog-folder .blog-stream {
   margin-top: 22px;
+}
+
+/* 文件夹页视图切换(卡片流 / 目录):样式与归档页 tabs 共用(见上) */
+.blog-folder-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.blog-folder-tabs {
+  display: flex;
+  gap: 8px;
+}
+/* 文件夹页正文(index.md):渲染在卡片流上方,排版复用主题的 .blog-post-body */
+.blog-folder-body {
+  margin: 22px 0 0;
+}
+
+/* 顶栏移动端目录:按钮 + 下拉面板(≤640px,主题开关 topbarMobileMenu 控制) */
+.blog-mnav-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color var(--duration-base, 160ms) var(--ease-plain, ease);
+}
+.blog-mnav-btn:hover {
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+.blog-mnav-btn:active {
+  transform: scale(0.94);
+}
+@media (max-width: 640px) {
+  body[data-topbar-mnav="true"] .blog-nav {
+    display: none;
+  }
+  body[data-topbar-mnav="true"] .blog-mnav-btn {
+    display: inline-flex;
+  }
+}
+.blog-mnav {
+  position: fixed;
+  top: calc(var(--ps-topbar-h, 64px) + 8px);
+  left: 12px;
+  right: 12px;
+  z-index: 110;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--ps-bg, #fff) 88%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  transform: translateY(-6px) scale(0.99);
+  transform-origin: top;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s var(--ease-plain, ease);
+  pointer-events: none;
+}
+.blog-mnav[data-open="true"] {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+@media (prefers-reduced-transparency: reduce) {
+  .blog-mnav {
+    background: var(--ps-bg, #fff);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+.blog-mnav a {
+  display: block;
+  padding: 11px 14px;
+  border-radius: 9px;
+  color: inherit;
+  font-size: 15px;
+  text-decoration: none;
+}
+.blog-mnav a + a {
+  border-top: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+}
+.blog-mnav a.current {
+  color: var(--ps-accent);
+  font-weight: 600;
+}
+.blog-mnav a:active {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .blog-mnav,
+  .blog-mnav-btn {
+    transition: opacity 0.2s ease;
+    transform: none !important;
+  }
+}
+
+/* 文件夹页排序控件:筛选框下方,下拉选维度 + 方向按钮切正倒序 */
+.blog-folder-sort {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+.blog-folder-sort-select {
+  padding: 6px 30px 6px 14px;
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  border-radius: 999px;
+  background-color: transparent;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color var(--duration-base, 160ms) var(--ease-plain, ease);
+}
+.blog-folder-sort-select:hover,
+.blog-folder-sort-select:focus {
+  border-color: var(--ps-accent);
+  outline: none;
+}
+.blog-folder-sort-dir {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-base, 160ms) var(--ease-plain, ease),
+    color var(--duration-base, 160ms) var(--ease-plain, ease),
+    transform 100ms ease-out;
+}
+.blog-folder-sort-dir:hover {
+  border-color: var(--ps-accent);
+  color: var(--ps-accent);
+}
+.blog-folder-sort-dir:active {
+  transform: scale(0.94);
+}
+
+/* 文件夹页标题筛选:按卡片文本过滤(目录视图不显示筛选框) */
+.blog-folder-filter {
+  margin: 18px 0 0;
+  width: min(100%, 320px);
+  padding: 7px 14px;
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: border-color var(--duration-base, 160ms) var(--ease-plain, ease);
+}
+.blog-folder-filter:focus {
+  border-color: var(--ps-accent);
+}
+.blog-folder-filter::placeholder {
+  color: inherit;
+  opacity: 0.45;
+}
+.blog-entry.is-filtered {
+  display: none;
+}
+/* 目录列表视图:自动目录页正文的列表样式(与 ps-home-list 同源结构) */
+.blog-folder-list .ps-home-list {
+  margin: 22px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.blog-folder-list .ps-home-item {
+  padding: 8px 0;
+  border-bottom: 1px dashed color-mix(in srgb, currentColor 16%, transparent);
+}
+.blog-folder-list .ps-home-link {
+  color: inherit;
+  text-decoration: none;
+}
+.blog-folder-list .ps-home-link:hover {
+  color: var(--ps-accent);
+}
+
+/* 页脚:说明文字 / 友情链接 / 构建信息(footer 全空时不占位、不显示边框) */
+.blog-footer:not(:has(*)) {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+.blog-footer-note {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+  opacity: 0.75;
+}
+.blog-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 18px;
+  margin-top: 14px;
+}
+.blog-footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: inherit;
+  font-size: 13px;
+  text-decoration: none;
+  opacity: 0.78;
+  transition: opacity var(--duration-base, 160ms) var(--ease-plain, ease);
+}
+.blog-footer-link:hover {
+  color: var(--ps-accent);
+  opacity: 1;
+}
+.blog-footer-link-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+.blog-footer-build {
+  margin: 14px 0 0;
+  font-size: 12px;
+  opacity: 0.55;
+  font-variant-numeric: tabular-nums;
+}
+.blog-footer-credit {
+  display: inline-block;
+  margin-top: 14px;
 }
 
 /* 归档页:全部文章的列表 / 分类 / 卡片流三种视图,客户端切换 */
@@ -76,7 +355,9 @@ body[data-cover-fixed="true"][data-cover-ratio="1:1"] .blog-entry-cover-empty {
   gap: 8px;
   margin: 20px 0 6px;
 }
-.blog-archive-tabs button {
+/* 归档页与文件夹页的视图切换按钮:同一设计语言(胶囊 + 强调色激活态) */
+.blog-archive-tabs button,
+.blog-folder-tabs button {
   border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
   border-radius: 999px;
   padding: 5px 16px;
@@ -90,11 +371,13 @@ body[data-cover-fixed="true"][data-cover-ratio="1:1"] .blog-entry-cover-empty {
     color var(--duration-base, 160ms) var(--ease-plain, ease),
     border-color var(--duration-base, 160ms) var(--ease-plain, ease);
 }
-.blog-archive-tabs button:hover {
+.blog-archive-tabs button:hover,
+.blog-folder-tabs button:hover {
   border-color: var(--ps-accent);
   color: var(--ps-accent);
 }
-.blog-archive-tabs button.is-active {
+.blog-archive-tabs button.is-active,
+.blog-folder-tabs button.is-active {
   background: var(--ps-accent);
   border-color: var(--ps-accent);
   color: #fff;
@@ -151,24 +434,44 @@ body[data-cover-fixed="true"][data-cover-ratio="1:1"] .blog-entry-cover-empty {
     :root {
       --ps-accent: #ff6666;
       --ps-content-w: 680px;
-      --ps-nav-columns: 2;
+      --ps-nav-columns: 4;
       --ps-cover-h: 120px;
       --ps-topbar-w: 100%;
-      --ps-topbar-deform-w: 660px;
+      --ps-topbar-deform-w: 580px;
       --ps-topbar-dur: 800ms;
       --ps-topbar-ease-custom: 0.23, 1, 0.32, 1;
-      --ps-topbar-fill: color-mix(in srgb, #faf9f7 82%, transparent);
+      --ps-topbar-fill: color-mix(in srgb, #faf9f7 37%, transparent);
       --ps-topbar-blur: 14px;
-      --ps-home-w: 80%;
+      --ps-home-w: 75%;
+      --ps-card-fs: 15px;
       --ps-logo-w: 33px;
       --ps-logo-h: 33px;
       --ps-logo-r: 0px;
     }
   </style>
   <link rel="stylesheet" href="../assets/style.css">
+  <!-- 3.8.0 正文字号与移动端卡片流:置于主题样式之后,桌面/移动分别生效 -->
+  <style>
+    body {
+      font-size: 16px;
+    }
+    @media (max-width: 640px) {
+      :root {
+        --ps-nav-columns: 2;
+        --ps-cover-h: 150px;
+        --ps-topbar-w: 100%;
+        --ps-card-fs: 12px;
+        --ps-topbar-deform-w: 65%;
+        --ps-home-w: 100%;
+      }
+      body {
+        font-size: 14px;
+      }
+    }
+  </style>
 <script>document.documentElement.classList.add("ps-js");</script>
 </head>
-  <body data-topbar-shape="药丸" data-topbar-ease="缓出" data-topbar-scroll-at="20" class="blog font-custom ps-anim-spring"style="--ps-font-body: MiSans;--ps-shadow-color: #000000;--ps-shadow-hv-color: #ff6666;--ps-card-dur: 800ms;" data-hv-logo="放大" data-hv-title="无" data-hv-nav="加深" data-shadow="轻" data-shadow-hv="深" data-hv-card="放大" data-hv-ease="弹性" data-loading="进度条" data-toc-style="树形分支" data-toc-hover="微移" data-toc-click="滑动" data-toc-click-ease="弹性" data-toc-click-ease-custom="0.23, 1, 0.32, 1" data-toc-click-dur="600" data-backtop="true" data-cover-fixed="true" data-cover-ratio="16:9" data-backtop-pos="右下角">
+  <body data-topbar-shape="药丸" data-topbar-ease="标准" data-topbar-scroll-at="20" class="blog font-custom ps-anim-spring"style="--ps-font-body: MiSans;--ps-shadow-color: #000000;--ps-shadow-hv-color: #ff6666;--ps-card-dur: 800ms;" data-hv-logo="放大" data-hv-title="无" data-hv-nav="加深" data-shadow="轻" data-shadow-hv="深" data-hv-card="放大" data-hv-ease="弹性" data-loading="进度条" data-toc-style="树形分支" data-toc-hover="微移" data-toc-click="滑动" data-toc-click-ease="弹性" data-toc-click-ease-custom="0.23, 1, 0.32, 1" data-toc-click-dur="600" data-backtop="true" data-cover-fixed="true" data-cover-ratio="16:9" data-backtop-pos="右下角" data-topbar-mnav="true">
   <div class="ps-loader" aria-hidden="true"><span class="ps-loader-spin"></span></div>
   <header class="blog-topbar">
     <a class="blog-brand" href="../index.html">
@@ -179,61 +482,79 @@ body[data-cover-fixed="true"][data-cover-ratio="1:1"] .blog-entry-cover-empty {
       <nav class="blog-nav" aria-label="站点导航">
         <a href="../%E6%96%87%E7%AB%A0%E5%88%97%E8%A1%A8.html">文章列表</a><a href="index.html" class="current">MWS·Software</a><a href="../archive/index.html">归档</a>
       </nav>
+    <button type="button" class="blog-mnav-btn" aria-label="目录" aria-expanded="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg></button>
   </header>
+  <nav class="blog-mnav" aria-label="站点导航">
+    <a href="../%E6%96%87%E7%AB%A0%E5%88%97%E8%A1%A8.html">文章列表</a><a href="index.html" class="current">MWS·Software</a><a href="../archive/index.html">归档</a>
+  </nav>
   <main class="blog-main">
-      <section class="blog-folder">
+      <section class="blog-folder" data-folder-view="stream">
         <header class="blog-folder-head">
           <h1 class="blog-folder-title">MWS·Software</h1>
+          <div class="blog-folder-tabs" role="tablist">
+            <button type="button" data-fview="stream" class="is-active">卡片流</button>
+            <button type="button" data-fview="list">目录</button>
+          </div>
         </header>
-        <div class="blog-stream">
-          <article class="blog-entry">
+        
+        <div class="blog-folder-pane" data-fpane="stream">
+          <input class="blog-folder-filter" type="search" placeholder="筛选文章…" aria-label="筛选文章">
+          <div class="blog-stream">
+            <article class="blog-entry" data-date="" data-updated="1791194624205">
       <a class="blog-entry-cover" href="Acta.html"><img src="../asset/acta.jpg" alt="Acta · 行记" loading="lazy"></a>
       
       <h2 class="blog-entry-title"><a href="Acta.html">Acta · 行记</a></h2>
       <p class="blog-entry-desc">本地优先的待办与笔记一站式工具。</p>
     </article>
-    <article class="blog-entry">
+    <article class="blog-entry" data-date="" data-updated="1791195200518">
       <a class="blog-entry-cover" href="Acta%20Handy.html"><img src="../asset/actahandy.jpg" alt="Acta·Handy - 行记·便易" loading="lazy"></a>
       
       <h2 class="blog-entry-title"><a href="Acta%20Handy.html">Acta·Handy - 行记·便易</a></h2>
       <p class="blog-entry-desc">为 Acta · 行记 提供桌面组件服务</p>
     </article>
-    <article class="blog-entry">
+    <article class="blog-entry" data-date="" data-updated="1791195490445">
       <a class="blog-entry-cover" href="Albumark.html"><img src="../asset/albumark.jpg" alt="Albumark · 辑印" loading="lazy"></a>
       
       <h2 class="blog-entry-title"><a href="Albumark.html">Albumark · 辑印</a></h2>
       <p class="blog-entry-desc">本地优先的图像批量添加水印与快速处理工具。</p>
     </article>
-    <article class="blog-entry">
+    <article class="blog-entry" data-date="" data-updated="1791195653211">
       <a class="blog-entry-cover" href="Collecout.html"><img src="../asset/collecout.jpg" alt="Collecout · 萃序" loading="lazy"></a>
       
       <h2 class="blog-entry-title"><a href="Collecout.html">Collecout · 萃序</a></h2>
       <p class="blog-entry-desc">本地优先的信息提取与整理工具。</p>
     </article>
-    <article class="blog-entry">
+    <article class="blog-entry" data-date="" data-updated="1791195772631">
       <a class="blog-entry-cover" href="FloePod.html"><img src="../asset/floepod.jpg" alt="FloePod · 浮匣" loading="lazy"></a>
       
       <h2 class="blog-entry-title"><a href="FloePod.html">FloePod · 浮匣</a></h2>
       <p class="blog-entry-desc">本地优先的 Windows 文件暂存辅助工具。</p>
     </article>
-    <article class="blog-entry">
+    <article class="blog-entry" data-date="" data-updated="1791195212276">
       <a class="blog-entry-cover" href="Plainstruct.html"><img src="../asset/plainstruct.jpg" alt="Plainstruct · 素构" loading="lazy"></a>
       
       <h2 class="blog-entry-title"><a href="Plainstruct.html">Plainstruct · 素构</a></h2>
       <p class="blog-entry-desc">本地优先的静态站点创建器。</p>
     </article>
-    <article class="blog-entry">
+    <article class="blog-entry" data-date="" data-updated="1791195843459">
       <a class="blog-entry-cover" href="TOLPL.html"><img src="../asset/tolpl.jpg" alt="TOLP Launcher ·光点之旅启动器" loading="lazy"></a>
       
       <h2 class="blog-entry-title"><a href="TOLPL.html">TOLP Launcher ·光点之旅启动器</a></h2>
       <p class="blog-entry-desc">一款为游戏《光点之旅》专门开发的启动器。</p>
     </article>
     
+          </div>
+        </div>
+        <div class="blog-folder-pane" data-fpane="list" hidden>
+          <div class="blog-folder-list"><ul class="ps-home-list"><li class="ps-home-item"><a class="ps-home-link" href="Acta.html">Acta · 行记</a></li><li class="ps-home-item"><a class="ps-home-link" href="Acta%20Handy.html">Acta·Handy - 行记·便易</a></li><li class="ps-home-item"><a class="ps-home-link" href="Plainstruct.html">Plainstruct · 素构</a></li><li class="ps-home-item"><a class="ps-home-link" href="Albumark.html">Albumark · 辑印</a></li><li class="ps-home-item"><a class="ps-home-link" href="Collecout.html">Collecout · 萃序</a></li><li class="ps-home-item"><a class="ps-home-link" href="FloePod.html">FloePod · 浮匣</a></li><li class="ps-home-item"><a class="ps-home-link" href="TOLPL.html">TOLP Launcher ·光点之旅启动器</a></li></ul></div>
         </div>
       </section>
-      <footer class="blog-footer">
-        <a href="https://github.com/MogroWang/Plainstruct" target="_blank" rel="noopener">由 Plainstruct 创建</a>
-      </footer>
+    <footer class="blog-footer">
+      <p class="blog-footer-note">© 2019-2026 MogroWang Studio 某个老王工作室</p>
+      
+      <p class="blog-footer-build">构建于 2026-10-06 00:05</p>
+      <a class="blog-footer-credit" href="https://github.com/MogroWang/Plainstruct" target="_blank" rel="noopener">由 Plainstruct 创建</a>
+    </footer>
   </main>
 <script>
 /* 素构站点行为脚本:目录滚动高亮、目录点按动画、顶栏滚动态、置顶按钮、加载指示。
@@ -462,6 +783,123 @@ body[data-cover-fixed="true"][data-cover-ratio="1:1"] .blog-entry-cover-empty {
       Array.prototype.forEach.call(doc.querySelectorAll(".blog-archive-pane"), function (pane) {
         pane.hidden = pane.getAttribute("data-pane") !== view;
       });
+    });
+  }
+
+  /* ---------- 文件夹落地页:卡片流 / 目录视图切换 + 卡片标题筛选 + 排序 ---------- */
+  var folder = doc.querySelector(".blog-folder");
+  if (folder) {
+    var ftabs = folder.querySelector(".blog-folder-tabs");
+    if (ftabs) {
+      ftabs.addEventListener("click", function (e) {
+        var btn = e.target && e.target.closest ? e.target.closest("button[data-fview]") : null;
+        if (!btn) return;
+        var view = btn.getAttribute("data-fview");
+        Array.prototype.forEach.call(ftabs.querySelectorAll("button[data-fview]"), function (b) {
+          b.classList.toggle("is-active", b === btn);
+        });
+        Array.prototype.forEach.call(folder.querySelectorAll(".blog-folder-pane"), function (pane) {
+          pane.hidden = pane.getAttribute("data-fpane") !== view;
+        });
+      });
+    }
+    var filter = folder.querySelector(".blog-folder-filter");
+    if (filter) {
+      filter.addEventListener("input", function () {
+        var q = filter.value.trim().toLowerCase();
+        Array.prototype.forEach.call(folder.querySelectorAll('.blog-folder-pane[data-fpane="stream"] .blog-entry'), function (card) {
+          var text = (card.textContent || "").toLowerCase();
+          card.classList.toggle("is-filtered", !!q && text.indexOf(q) === -1);
+        });
+      });
+
+      /* 排序:默认 / 更新日期 / 发布日期 / 标题,方向按钮切正倒序。
+         排序在筛选之后仍成立(筛选是 class 状态,不随重排丢失) */
+      var stream = folder.querySelector('.blog-folder-pane[data-fpane="stream"] .blog-stream');
+      if (stream) {
+        var cardsInOrder = Array.prototype.slice.call(stream.querySelectorAll(":scope > .blog-entry"));
+        var sortBar = doc.createElement("div");
+        sortBar.className = "blog-folder-sort";
+        var sortSel = doc.createElement("select");
+        sortSel.className = "blog-folder-sort-select";
+        sortSel.setAttribute("aria-label", "排序方式");
+        [
+          ["default", "默认排序"],
+          ["updated", "按更新日期"],
+          ["date", "按发布日期"],
+          ["title", "按标题"],
+        ].forEach(function (item) {
+          var opt = doc.createElement("option");
+          opt.value = item[0];
+          opt.textContent = item[1];
+          sortSel.appendChild(opt);
+        });
+        var sortDir = doc.createElement("button");
+        sortDir.type = "button";
+        sortDir.className = "blog-folder-sort-dir";
+        sortDir.textContent = "↓";
+        sortDir.title = "切换正序 / 倒序";
+        sortDir.setAttribute("aria-label", "切换正序 / 倒序");
+        sortBar.appendChild(sortSel);
+        sortBar.appendChild(sortDir);
+        filter.insertAdjacentElement("afterend", sortBar);
+
+        var titleOf = function (card) {
+          var t = card.querySelector(".blog-entry-title");
+          return (t ? t.textContent : card.textContent || "").trim();
+        };
+        var keyOf = {
+          updated: function (card) { return Number(card.getAttribute("data-updated") || 0); },
+          // date 可能是 2026-9-1 这类非零填充写法:斜杠化交给 Date 解析
+          date: function (card) {
+            var d = new Date(String(card.getAttribute("data-date") || "").replace(/-/g, "/"));
+            return isNaN(d.getTime()) ? 0 : d.getTime();
+          },
+          title: function (card) { return titleOf(card); },
+        };
+        var applySort = function () {
+          var mode = sortSel.value;
+          var desc = sortDir.textContent === "↓";
+          var ordered = cardsInOrder.slice();
+          if (mode !== "default") {
+            var key = keyOf[mode];
+            ordered.sort(function (a, b) {
+              var ka = key(a);
+              var kb = key(b);
+              var r = typeof ka === "string" ? ka.localeCompare(kb, "zh-Hans-CN") : ka - kb;
+              return desc ? -r : r;
+            });
+          }
+          ordered.forEach(function (card) { stream.appendChild(card); });
+        };
+        sortSel.addEventListener("change", applySort);
+        sortDir.addEventListener("click", function () {
+          sortDir.textContent = sortDir.textContent === "↓" ? "↑" : "↓";
+          applySort();
+        });
+      }
+    }
+  }
+
+  /* ---------- 移动端顶栏目录:按钮展开导航面板(≤640px,主题开关) ---------- */
+  var mnavBtn = doc.querySelector(".blog-mnav-btn");
+  var mnav = doc.querySelector(".blog-mnav");
+  if (mnavBtn && mnav) {
+    var setMnav = function (open) {
+      mnav.setAttribute("data-open", String(open));
+      mnavBtn.setAttribute("aria-expanded", String(open));
+    };
+    mnavBtn.addEventListener("click", function () {
+      setMnav(mnav.getAttribute("data-open") !== "true");
+    });
+    mnav.addEventListener("click", function (e) {
+      if (e.target && e.target.closest && e.target.closest("a")) setMnav(false);
+    });
+    doc.addEventListener("click", function (e) {
+      if (mnav.getAttribute("data-open") !== "true") return;
+      var t = e.target;
+      if (t && t.closest && (t.closest(".blog-mnav") || t.closest(".blog-mnav-btn"))) return;
+      setMnav(false);
     });
   }
 
