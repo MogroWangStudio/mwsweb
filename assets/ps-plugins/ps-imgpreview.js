@@ -33,6 +33,8 @@
   var sourceImg = null; // 打开时的源图(隐藏,关闭时恢复)
   var opened = false;
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var pixel = false; // 本次预览的渲染方式:false = 抗锯齿(默认),true = 像素(点对点)
+  var pixelCanvas = null; // 像素渲染画布:视口大小,最近邻采样,替代被隐藏的 <img>
 
   var ICON = {
     minus: '<path d="M5 12h14"/>',
@@ -113,11 +115,61 @@
     img.style.transform =
       "translate(-50%,-50%) translate(" + st.tx + "px," + st.ty + "px) scale(" + st.scale + ") rotate(" + st.rot + "deg)";
     if (scaleBtn) scaleBtn.textContent = Math.round(st.scale * 100) + "%";
+    if (pixel && pixelCanvas) drawPixel();
+  }
+
+  /* ---------- 像素渲染:canvas 最近邻采样 ---------- */
+  /* CSS transform 缩放由合成器以线性滤波插值,image-rendering: pixelated 在
+     合成层上不生效 —— 像素模式改用与视口等大的 canvas 以 devicePixelRatio 光栅化:
+     drawImage 关闭平滑,一个源像素渲染成整齐的色块,彻底没有抗锯齿。 */
+  function mountPixelCanvas() {
+    if (pixelCanvas) return;
+    pixelCanvas = document.createElement("canvas");
+    pixelCanvas.className = "ps-lb-pixel";
+    pixelCanvas.setAttribute("aria-hidden", "true");
+    overlay.insertBefore(pixelCanvas, img); // 画布垫在 img 下层;img 隐藏但保留全部手势
+    window.addEventListener("resize", drawPixel);
+  }
+
+  function unmountPixelCanvas() {
+    if (!pixelCanvas) return;
+    pixelCanvas.remove();
+    pixelCanvas = null;
+    window.removeEventListener("resize", drawPixel);
+  }
+
+  function drawPixel() {
+    if (!pixelCanvas || !opened) return;
+    var dpr = window.devicePixelRatio || 1;
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    var bw = Math.round(w * dpr);
+    var bh = Math.round(h * dpr);
+    if (pixelCanvas.width !== bw || pixelCanvas.height !== bh) {
+      pixelCanvas.width = bw;
+      pixelCanvas.height = bh;
+    }
+    var ctx = pixelCanvas.getContext("2d");
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, bw, bh);
+    var src = sourceImg && sourceImg.naturalWidth ? sourceImg : img;
+    // 复刻 <img> 的 CSS 布局尺寸(92vw × 86vh 内等比适配)再乘当前倍率
+    var fit = Math.min(1, (w * 0.92) / src.naturalWidth, (h * 0.86) / src.naturalHeight);
+    var dw = src.naturalWidth * fit;
+    var dh = src.naturalHeight * fit;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.translate(w / 2 + st.tx, h / 2 + st.ty);
+    if (st.rot) ctx.rotate((st.rot * Math.PI) / 180);
+    ctx.scale(st.scale, st.scale);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(src, -dw / 2, -dh / 2, dw, dh);
   }
 
   /** 以视口点 p 为缩放中心改变倍率(保持该点下的内容不动) */
   function zoomAt(px, py, next) {
     var s = Math.min(MAX, Math.max(MIN, next));
+    // 像素渲染:≥100% 时吸附整数倍 —— 一个图像像素对应整数个屏幕像素,点对点清晰可见
+    if (pixel && s >= 1) s = Math.max(1, Math.round(s));
     var k = s / st.scale;
     var cx = window.innerWidth / 2 + st.tx;
     var cy = window.innerHeight / 2 + st.ty;
@@ -222,6 +274,8 @@
   function close() {
     if (!opened) return;
     opened = false;
+    pixel = false;
+    unmountPixelCanvas();
     pointers.clear();
     drag = null;
     document.removeEventListener("keydown", onKey, true);
@@ -311,7 +365,6 @@
   function buildBar(host) {
     var bar = document.createElement("div");
     bar.className = "ps-lb-bar";
-    var pixel = false; // 本次预览的渲染方式:false = 抗锯齿(默认),true = 像素
     var out = btn(ICON.minus, T.zoomOut, function () {
       setMode("ps-lb-spring");
       zoomAt(window.innerWidth / 2, window.innerHeight / 2, st.scale / 1.5);
@@ -335,13 +388,27 @@
       st.rot += 90; // 累积角度:取模会让 270°→0° 沿原路倒转一大圈
       apply();
     });
-    // 渲染方式:像素放大(关闭插值,像素网格清晰)与抗锯齿放大(默认)切换
+    // 渲染方式:像素放大(点对点,关闭插值,像素网格清晰)与抗锯齿放大(默认)切换
     var pixelBtn = btn(ICON.pixel, T.pixelOff, function () {
       pixel = !pixel;
-      img.style.imageRendering = pixel ? "pixelated" : "";
       pixelBtn.classList.toggle("is-active", pixel);
       pixelBtn.title = pixel ? T.pixelOn : T.pixelOff;
       pixelBtn.setAttribute("aria-pressed", String(pixel));
+      if (pixel) {
+        // 像素模式:隐藏 <img>,由最近邻 canvas 呈现,彻底关闭抗锯齿
+        img.style.visibility = "hidden";
+        mountPixelCanvas();
+        // 切入时当前倍率 ≥100% 就吸附到最近整数倍,立即呈现点对点效果
+        if (st.scale >= 1) {
+          setMode("ps-lb-spring");
+          zoomAt(window.innerWidth / 2, window.innerHeight / 2, st.scale);
+        } else {
+          apply();
+        }
+      } else {
+        img.style.visibility = "";
+        unmountPixelCanvas();
+      }
     });
     pixelBtn.setAttribute("aria-pressed", "false");
     var dl = btn(ICON.download, T.download, function () {
@@ -482,7 +549,8 @@
             st.tx = 0;
             st.ty = 0;
           } else {
-            var target = 2.5;
+            // 像素渲染下双击到 200%(整数倍点对点),抗锯齿保持 250%
+            var target = pixel ? 2 : 2.5;
             var k = target / st.scale;
             var cx = window.innerWidth / 2 + st.tx;
             var cy = window.innerHeight / 2 + st.ty;
