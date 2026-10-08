@@ -146,9 +146,15 @@ body.ps-home .blog-main {
   body[data-topbar-mnav="true"] .blog-mnav-btn:hover {
     background: color-mix(in srgb, currentColor 8%, var(--ps-mnav-fill, transparent));
   }
-  /* 下拉列表文字对齐(左/中/右,主题配置) */
+  /* 下拉列表文字对齐(左/中/右,主题配置;中文枚举经 data 属性映射为合法 CSS 值) */
   .blog-mnav a {
-    text-align: var(--ps-mnav-align, left);
+    text-align: left;
+  }
+  body[data-mnav-align="居中"] .blog-mnav a {
+    text-align: center;
+  }
+  body[data-mnav-align="右对齐"] .blog-mnav a {
+    text-align: right;
   }
   /* 移动端专属:站点标识在顶栏水平居中(data-logo-center-m)。
      品牌区绝对定位居中,不参与 flex 排版 —— 目录按钮/导航仍在原位;
@@ -482,7 +488,6 @@ html {
       --ps-mnav-h: 32px;
       --ps-mnav-r: 20px;
       --ps-mnav-fill: color-mix(in srgb, #FFFFFF 100%, transparent);
-      --ps-mnav-align: 居中;
     }
   </style>
   <link rel="stylesheet" href="../assets/style.css">
@@ -509,7 +514,7 @@ html {
   </style>
 <script>document.documentElement.classList.add("ps-js");</script>
 </head>
-  <body data-topbar-shape="药丸" data-topbar-ease="标准" data-topbar-scroll-at="20" class="blog font-custom ps-anim-spring"style="--ps-font-body: MiSans;--ps-shadow-color: #000000;--ps-shadow-hv-color: #ff6666;--ps-card-dur: 800ms;" data-hv-logo="放大" data-hv-title="无" data-hv-nav="加深" data-shadow="轻" data-shadow-hv="深" data-hv-card="放大" data-hv-ease="弹性" data-loading="进度条" data-toc-style="树形分支" data-toc-hover="微移" data-toc-click="滑动" data-toc-click-ease="弹性" data-toc-click-ease-custom="0.23, 1, 0.32, 1" data-toc-click-dur="600" data-backtop="true" data-cover-fixed="true" data-cover-ratio="16:9" data-backtop-pos="右下角" data-topbar-mnav="true" data-logo-center-m="true" data-hv-link="加深" data-hv-cover="无" data-entry="关闭">
+  <body data-topbar-shape="药丸" data-topbar-ease="标准" data-topbar-scroll-at="20" class="blog font-custom ps-anim-spring"style="--ps-font-body: MiSans;--ps-shadow-color: #000000;--ps-shadow-hv-color: #ff6666;--ps-card-dur: 800ms;" data-hv-logo="放大" data-hv-title="无" data-hv-nav="加深" data-shadow="轻" data-shadow-hv="深" data-hv-card="放大" data-hv-ease="弹性" data-loading="进度条" data-toc-style="树形分支" data-toc-hover="微移" data-toc-click="滑动" data-toc-click-ease="弹性" data-toc-click-ease-custom="0.23, 1, 0.32, 1" data-toc-click-dur="600" data-backtop="true" data-cover-fixed="true" data-cover-ratio="16:9" data-backtop-pos="右下角" data-topbar-mnav="true" data-logo-center-m="true" data-mnav-align="居中" data-hv-link="加深" data-hv-cover="无" data-entry="关闭">
   <div class="ps-loader" aria-hidden="true"><span class="ps-loader-spin"></span></div>
   <header class="blog-topbar">
     <a class="blog-brand" href="../index.html">
@@ -518,12 +523,12 @@ html {
     </a>
     <span class="blog-topbar-page">归档</span>
       <nav class="blog-nav" aria-label="站点导航">
-        <a href="../MWS%C2%B7Software/index.html">MWS·Software</a><a href="../MWS%C2%B7Videos/index.html">MWS·Videos</a><a href="index.html" class="current">归档</a><a href="../%E5%85%B3%E4%BA%8E.html">关于</a>
+        <a href="../MWS%C2%B7Software/index.html">软件</a><a href="../MWS%C2%B7Videos/index.html">视频</a><a href="index.html" class="current">归档</a><a href="../%E5%85%B3%E4%BA%8E.html">关于</a>
       </nav>
     <button type="button" class="blog-mnav-btn" aria-label="目录" aria-expanded="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg></button>
   </header>
   <nav class="blog-mnav" aria-label="站点导航">
-    <a href="../MWS%C2%B7Software/index.html">MWS·Software</a><a href="../MWS%C2%B7Videos/index.html">MWS·Videos</a><a href="index.html" class="current">归档</a><a href="../%E5%85%B3%E4%BA%8E.html">关于</a>
+    <a href="../MWS%C2%B7Software/index.html">软件</a><a href="../MWS%C2%B7Videos/index.html">视频</a><a href="index.html" class="current">归档</a><a href="../%E5%85%B3%E4%BA%8E.html">关于</a>
   </nav>
   <main class="blog-main">
     <section class="blog-archive">
@@ -591,7 +596,7 @@ html {
       </div>
       <div class="blog-archive-pane" data-pane="cards" hidden>
         <div class="blog-stream">
-          <article class="blog-entry" data-date="2026-10-05 18:15:17" data-updated="1791423325095">
+          <article class="blog-entry" data-date="2026-10-05 18:15:17" data-updated="1791474558582">
       <a class="blog-entry-cover" href="../MWS%C2%B7Videos/%E3%83%AF%E3%83%B3%E3%83%80%E3%83%BC%20%C2%B7%20OBSESSION.html"><img src="../asset/%E5%B0%81%E9%9D%A2.jpg" alt="ワンダー × OBSESSION" loading="lazy"></a>
       <time class="blog-entry-date">2026-10-05 18:15:17</time>
       <h2 class="blog-entry-title"><a href="../MWS%C2%B7Videos/%E3%83%AF%E3%83%B3%E3%83%80%E3%83%BC%20%C2%B7%20OBSESSION.html">ワンダー × OBSESSION</a></h2>
@@ -658,7 +663,7 @@ html {
     <footer class="blog-footer">
       <p class="blog-footer-note">© 2019-2026 MogroWang Studio 某个老王工作室</p>
       <nav class="blog-footer-links" aria-label="友情链接"><a class="blog-footer-link" href="https://github.com/MogroWangStudio/Plainstruct/" target="_blank" rel="noopener"><img class="blog-footer-link-icon" src="../asset/github-64px.svg" alt="" loading="lazy"><span>Github</span></a><a class="blog-footer-link" href="https://space.bilibili.com/19529969" target="_blank" rel="noopener"><span>Bilibili</span></a></nav>
-      <p class="blog-footer-build">构建于 2026-10-08 19:28</p>
+      <p class="blog-footer-build">构建于 2026-10-08 23:49</p>
       <a class="blog-footer-credit" href="https://github.com/MogroWang/Plainstruct" target="_blank" rel="noopener">由 Plainstruct 创建</a>
     </footer>
   </main>
