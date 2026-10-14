@@ -397,17 +397,8 @@ body.ps-home .blog-main {
   color: var(--ps-accent);
 }
 
-/* 文章目录层级缩进:副标题(##)以下逐级收进;主题自身的层级规则(如 is-l3)在之后加载,
-   同权重时仍可覆盖;深层级配合目录容器的 overflow 裁剪,不出现横向滚动条 */
-.blog-toc-item.is-l4 a {
-  padding-left: 38px;
-}
-.blog-toc-item.is-l5 a {
-  padding-left: 50px;
-}
-.blog-toc-item.is-l6 a {
-  padding-left: 62px;
-}
+/* 目录层级缩进由各博客主题自身的 is-l2..is-l6 规则定义(基准与步长随主题);
+   目录容器 overflow 横向裁剪,深层级不出现横向滚动条 */
 
 /* 页脚:说明文字 / 友情链接 / 构建信息(footer 全空时不占位、不显示边框) */
 .blog-footer:not(:has(*)) {
@@ -696,7 +687,7 @@ html {
     <footer class="blog-footer">
       <p class="blog-footer-note">© 2019-2026 MogroWang Studio 某个老王工作室</p>
       <nav class="blog-footer-links" aria-label="友情链接"><a class="blog-footer-link" href="https://github.com/MogroWangStudio/Plainstruct/" target="_blank" rel="noopener"><img class="blog-footer-link-icon" src="../asset/github-64px.svg" alt="" loading="lazy"><span>Github</span></a><a class="blog-footer-link" href="https://space.bilibili.com/19529969" target="_blank" rel="noopener"><span>Bilibili</span></a></nav>
-      <p class="blog-footer-build">本站点构建于 2026-10-14 16:26</p>
+      <p class="blog-footer-build">本站点构建于 2026-10-14 21:03</p>
       <a class="blog-footer-credit" href="https://github.com/MogroWang/Plainstruct" target="_blank" rel="noopener">由 Plainstruct 创建</a>
     </footer>
   </main>
@@ -868,32 +859,37 @@ html {
   /* ---------- 顶栏滚动态 ---------- */
   var tb = doc.querySelector(".blog-topbar");
   if (tb) {
-    /* 顶栏变形(药丸/圆角矩形)单次触发:首次滚过阈值后永久保持变形态。
-       此前随滚动阈值反复切换,过渡在中间帧被重启动画,观感上卡在某一处;
-       单次触发后变形动画只播一次,不再重启。页面加载时已处于滚动位置
-       (浏览器恢复阅读位置/刷新)的话,直接无过渡落位,不重播变形 */
+    /* 顶栏变形(药丸/圆角矩形)双向单次触发:滚动到达设定阈值时切换形态一次
+       (过渡完整播放,不被中间帧重启 —— 此前逐事件重评估,阈值附近抖动会让
+       过渡反复打断,观感即「卡在某一处」);回落到回程阈值(带滞回)时还原一次。
+       页面加载时已处于滚动位置(刷新/恢复阅读位置)的话,直接无过渡落位,
+       不重播变形(避免刷新时页面莫名下移) */
     var at = parseInt(body.getAttribute("data-topbar-scroll-at") || "24", 10);
     if (!isFinite(at) || at < 0) at = 24;
+    var backAt = Math.max(2, at - Math.max(8, Math.round(at / 2))); // 回程滞回阈值
+    var morphed = false;
+    var syncBar = function () {
+      var y = window.scrollY || doc.documentElement.scrollTop || 0;
+      if (!morphed && y > at) {
+        morphed = true;
+        tb.classList.add("is-scrolled");
+      } else if (morphed && y < backAt) {
+        morphed = false;
+        tb.classList.remove("is-scrolled");
+      }
+    };
     var y0 = window.scrollY || doc.documentElement.scrollTop || 0;
     if (y0 > at) {
+      morphed = true;
       tb.style.transition = "none";
       tb.classList.add("is-scrolled");
       void tb.getBoundingClientRect();
       requestAnimationFrame(function () {
         tb.style.transition = "";
       });
-    } else {
-      var tbMorphed = false;
-      var syncBar = function () {
-        if (tbMorphed) return;
-        if ((window.scrollY || doc.documentElement.scrollTop || 0) > at) {
-          tbMorphed = true;
-          tb.classList.add("is-scrolled");
-        }
-      };
-      window.addEventListener("scroll", syncBar, { passive: true });
-      syncBar();
     }
+    window.addEventListener("scroll", syncBar, { passive: true });
+    syncBar();
   }
   /* 文档主题顶栏:同一套滚动态标记,下拉变形形态由主题配置(data-topbar-shape)驱动 */
   var ptb = doc.querySelector(".ps-topbar");
@@ -1136,7 +1132,7 @@ html {
 </script>
 <link rel="stylesheet" href="../assets/ps-plugins/ps-imgpreview.css">
 <link rel="stylesheet" href="../assets/ps-plugins/ps-search.css">
-<script src="../assets/ps-plugins/ps-imgpreview.js" data-require-mark="mws_ps_imgpreview" data-sharp-delay="750" data-close-dur="580" data-close-ease="弹性"></script>
+<script src="../assets/ps-plugins/ps-imgpreview.js" data-require-mark="mws_ps_imgpreview" data-sharp-delay="50" data-close-preset="自定义" data-close-dur="380" data-close-ease="弹性"></script>
 <script src="../assets/ps-plugins/ps-search.js" data-index-url="../assets/ps-plugins/search-index.json" data-root-prefix="../" data-style="bar" data-position="topbar" data-bar-width="160" data-style-m="button"></script>
 </body>
 </html>
